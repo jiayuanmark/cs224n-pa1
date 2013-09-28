@@ -4,6 +4,7 @@ cs224n-pa1
 The first pa1 of cs244n at Stanford
 
 Notice:
+
 1. Changed line 34 of cs224n.assignments.WordAlignmentTester.java for local development
 
 2. For PMIModel, it seems that we only need to keep track of one conditional probability table.
