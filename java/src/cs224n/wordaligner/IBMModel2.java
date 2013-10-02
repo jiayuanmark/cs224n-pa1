@@ -14,7 +14,7 @@ public class IBMModel2 implements WordAligner {
 	
 	public IBMModel2() {
 		conditionalCounter = new CounterMap<String, String>();
-		positionCounter = new Counter<Pair<Pair<Integer, Integer>, Integer>();
+		positionCounter = new Counter<Pair<Pair<Integer, Integer>, Integer>, Integer>();
 	}
 	
 	
@@ -57,12 +57,12 @@ public class IBMModel2 implements WordAligner {
 		// For each of the sentence pair
 		initialize(trainingData);
 		int i = 0;
-		private CounterMap<String, String> currentConditionalCounter;
-		private CounterMap<Pair<Pair<Integer, Integer>, Integer> currentPositionCounter;
+		CounterMap<String, String> currentConditionalCounter;
+		CounterMap<Pair<Pair<Integer, Integer>, Integer>, Integer> currentPositionCounter;
 		while (i < 100) {
 			for (SentencePair pair : trainingData) {
 				currentConditionalCounter = new CounterMap<String, String>();
-				currentPositionCounter = new CounterMap<Pair<Pair<Integer, Integer>, Integer>();
+				currentPositionCounter = new CounterMap<Pair<Pair<Integer, Integer>, Integer>, Integer>();
 				// count(f_j, e_i) where j = 1, ..., m 
 				Pair<Integer, Integer> s_pair = new Pair(pair.getSourceWords(), pair.getTargetWords());
 

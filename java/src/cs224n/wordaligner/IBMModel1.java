@@ -64,7 +64,7 @@ public class IBMModel1 implements WordAligner {
 		// For each of the sentence pair
 		initialize(trainingData);
 		int i = 0;
-		private CounterMap<String, String> currentConditionalCounter;
+		CounterMap<String, String> currentConditionalCounter;
 		while (i < 100) {
 			for (SentencePair pair : trainingData) {
 				currentConditionalCounter = new CounterMap<String, String>();
