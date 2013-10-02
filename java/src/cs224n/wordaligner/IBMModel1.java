@@ -34,7 +34,7 @@ public class IBMModel1 implements WordAligner {
 			
 			for (int srcIdx = 0; srcIdx < numSrcWords; ++srcIdx) {
 				if (conditionalCounter.getCount(tgtWords.get(tgtIdx), srcWords.get(srcIdx)) > score) {
-					score = conditionalCounter.getCount(srcWords.get(tgtIdx), tgtWords.src(tgtIdx));
+					score = conditionalCounter.getCount(tgtWords.get(tgtIdx), srcWords.get(srcIdx));
 					maxIdx = srcIdx;
 				}
 			}
@@ -53,8 +53,8 @@ public class IBMModel1 implements WordAligner {
 					if (conditionalCounter.getCount(tgtWord, srcWord) == 0)
                                         	conditionalCounter.incrementCount(tgtWord, srcWord, 1.0);
 			for (String tgtWord : pair.getTargetWords())
-				if (conditionalCounter.getCount(tgtWord, srcWord) == 0)
-                                	conditionalCounter.incrementCount(tgt_WORD, NULL_WORD, 1.0);
+				if (conditionalCounter.getCount(tgtWord, NULL_WORD) == 0)
+                                	conditionalCounter.incrementCount(tgtWord, NULL_WORD, 1.0);
 		}
 		conditionalCounter = Counters.conditionalNormalize(conditionalCounter);
 	}
@@ -65,9 +65,10 @@ public class IBMModel1 implements WordAligner {
 		initialize(trainingData);
 		int i = 0;
 		CounterMap<String, String> currentConditionalCounter;
-		while (i < 100) {
+		while (i < 1000) {
+
+			currentConditionalCounter = new CounterMap<String, String>();
 			for (SentencePair pair : trainingData) {
-				currentConditionalCounter = new CounterMap<String, String>();
 				// count(f_j, e_i) where j = 1, ..., m 
 				for (String srcWord : pair.getSourceWords())
 					for (String tgtWord : pair.getTargetWords())
