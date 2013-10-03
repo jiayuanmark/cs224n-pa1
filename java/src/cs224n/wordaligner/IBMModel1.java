@@ -29,12 +29,12 @@ public class IBMModel1 implements WordAligner {
 		
 		for (int tgtIdx = 0; tgtIdx < numTgtWords; ++tgtIdx) {
 			// Initialize with a null alignment
-			double score = conditionalCounter.getCount(tgtWords.get(tgtIdx), NULL_WORD);
+			double score = conditionalCounter.getCount(NULL_WORD, tgtWords.get(tgtIdx));
 			int maxIdx = -1;
 			
 			for (int srcIdx = 0; srcIdx < numSrcWords; ++srcIdx) {
-				if (conditionalCounter.getCount(tgtWords.get(tgtIdx), srcWords.get(srcIdx)) > score) {
-					score = conditionalCounter.getCount(tgtWords.get(tgtIdx), srcWords.get(srcIdx));
+				if (conditionalCounter.getCount(srcWords.get(srcIdx), tgtWords.get(tgtIdx)) > score) {
+					score = conditionalCounter.getCount(srcWords.get(srcIdx), tgtWords.get(tgtIdx));
 					maxIdx = srcIdx;
 				}
 			}
@@ -50,11 +50,9 @@ public class IBMModel1 implements WordAligner {
 		for (SentencePair pair : trainingData) {
 			for (String srcWord : pair.getSourceWords())
                                 for (String tgtWord : pair.getTargetWords())
-					if (conditionalCounter.getCount(tgtWord, srcWord) == 0)
-                                        	conditionalCounter.incrementCount(tgtWord, srcWord, 1.0);
+                                        conditionalCounter.incrementCount(srcWord, tgtWord, 1.0);
 			for (String tgtWord : pair.getTargetWords())
-				if (conditionalCounter.getCount(tgtWord, NULL_WORD) == 0)
-                                	conditionalCounter.incrementCount(tgtWord, NULL_WORD, 1.0);
+                                conditionalCounter.incrementCount(NULL_WORD, tgtWord, 1.0);
 		}
 		conditionalCounter = Counters.conditionalNormalize(conditionalCounter);
 	}
@@ -63,25 +61,31 @@ public class IBMModel1 implements WordAligner {
 	public void train(List<SentencePair> trainingData) {
 		// For each of the sentence pair
 		initialize(trainingData);
-		int i = 0;
 		CounterMap<String, String> currentConditionalCounter;
-		while (i < 1000) {
+		while (true) {
 
 			currentConditionalCounter = new CounterMap<String, String>();
 			for (SentencePair pair : trainingData) {
 				// count(f_j, e_i) where j = 1, ..., m 
-				for (String srcWord : pair.getSourceWords())
-					for (String tgtWord : pair.getTargetWords())
-						currentConditionalCounter.incrementCount(tgtWord, srcWord, conditionalCounter.getCount(tgtWord, srcWord));
+				for (String tgtWord : pair.getTargetWords()) {
+					double sum = 0.0;
+					for (String srcWord : pair.getSourceWords())
+						sum += conditionalCounter.getCount(srcWord, tgtWord);
+					sum += conditionalCounter.getCount(NULL_WORD, tgtWord);
+
+					for (String srcWord : pair.getSourceWords())
+						currentConditionalCounter.incrementCount(srcWord, tgtWord, conditionalCounter.getCount(srcWord, tgtWord)/sum);
 			
 				// count(f_0, e_i)
-				for (String tgtWord : pair.getTargetWords())
-					conditionalCounter.incrementCount(tgtWord, NULL_WORD, conditionalCounter.getCount(tgtWord, NULL_WORD));
+					currentConditionalCounter.incrementCount(NULL_WORD, tgtWord, conditionalCounter.getCount(NULL_WORD, tgtWord)/sum);
+				}
 			}
 		
 			// Normalize to get p(e_i | f_j)	
-			conditionalCounter = Counters.conditionalNormalize(currentConditionalCounter);
-			i ++;
+			currentConditionalCounter = Counters.conditionalNormalize(currentConditionalCounter);
+			if (conditionalCounter.compareCounter(currentConditionalCounter) < 0.001)
+				break;
+			conditionalCounter = currentConditionalCounter;
 		}
 	}
 

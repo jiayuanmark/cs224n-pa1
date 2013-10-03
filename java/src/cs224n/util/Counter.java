@@ -1,6 +1,7 @@
 package cs224n.util;
 
 import java.io.Serializable;
+import java.lang.Math;
 import java.util.Map;
 import java.util.Set;
 import java.util.Collection;
@@ -16,6 +17,15 @@ import java.util.Collection;
 public class Counter <E> implements Serializable {
   Map<E, Double> entries;
 
+  public double compareCounter(Counter<E> c) {
+    double difference = 0.0;
+    for (E key : keySet()) {
+      double delta = Math.abs(getCount(key) - c.getCount(key)); 
+      if (delta > difference)
+        difference = delta;       
+    }
+    return difference;
+  }
   /**
    * The elements in the counter.
    *

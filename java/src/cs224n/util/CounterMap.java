@@ -42,6 +42,17 @@ public class CounterMap<K, V> {
     return valueCounter;
   }
 
+  public double compareCounter(CounterMap<K, V> c) {
+    double difference = 0.0;
+    for (K key : keySet()) {
+      Counter c1 = this.getCounter(key);
+      Counter c2 = c.getCounter(key);
+      double delta = c1.compareCounter(c2);
+      if (delta > difference)
+        difference = delta;
+    }
+    return difference;
+  }
   /**
    * Returns the keys that have been inserted into this CounterMap.
    */
