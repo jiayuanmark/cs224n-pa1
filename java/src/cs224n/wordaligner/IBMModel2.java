@@ -25,15 +25,18 @@ public class IBMModel2 implements WordAligner {
 		int numTgtWords = sentencePair.getTargetWords().size();
 		List<String> srcWords = sentencePair.getSourceWords();
 		List<String> tgtWords = sentencePair.getTargetWords();
-		
+		Pair<Integer, Integer> s_pair = new Pair(numTgtWords, numSrcWords);
 		for (int tgtIdx = 0; tgtIdx < numTgtWords; ++tgtIdx) {
 			// Initialize with a null alignment
+			Pair<Pair<Integer, Integer>, Integer> p = new Pair(s_pair, Integer.valueOf(tgtIdx));
 			double score = conditionalCounter.getCount(tgtWords.get(tgtIdx), NULL_WORD);
 			int maxIdx = -1;
 			
 			for (int srcIdx = 0; srcIdx < numSrcWords; ++srcIdx) {
-				if (conditionalCounter.getCount(tgtWords.get(tgtIdx), srcWords.get(srcIdx)) > score) {
-					score = conditionalCounter.getCount(tgtWords.get(tgtIdx), srcWords.get(srcIdx));
+				double delta = conditionalCounter.getCount(srcWords.get(srcIdx), tgtWords.get(tgtIdx))
+						* positionCounter.getCount(p, Integer.valueOf(srcIdx));
+				if (delta > score) {
+					score = delta;
 					maxIdx = srcIdx;
 				}
 			}
@@ -49,42 +52,72 @@ public class IBMModel2 implements WordAligner {
 		IBMModel1 model = new IBMModel1();
 		model.train(trainingData);
 		conditionalCounter = model.getConditionalCounter();
-		//TODO randomly initialize position counter
+		
+		for (SentencePair pair : trainingData) {
+			int n = pair.getTargetWords().size();
+			List<String> e = pair.getTargetWords();
+			int m = pair.getSourceWords().size();
+			List<String> f = pair.getSourceWords();
+			int sum = 0;
+			Pair<Integer, Integer> s_pair = new Pair(n, m);				
+			for (int i = 0; i < n; i++) {
+				Pair<Pair<Integer, Integer>, Integer> p = new Pair(s_pair, Integer.valueOf(i));
+				for (int j = 0; j < m; j++) {
+					positionCounter.incrementCount(p, Integer.valueOf(j), 1 / (m + 1));
+				}
+				positionCounter.incrementCount(p, Integer.valueOf(-1), 1 / (m + 1));
+			}
+		}
 	}
 
 	@Override
 	public void train(List<SentencePair> trainingData) {
 		// For each of the sentence pair
 		initialize(trainingData);
-		int iter = 0;
 		CounterMap<String, String> currentConditionalCounter;
 		CounterMap<Pair<Pair<Integer, Integer>, Integer>, Integer> currentPositionCounter;
-		while (iter < 100) {
+		while (true) {
 			currentConditionalCounter = new CounterMap<String, String>();
 			currentPositionCounter = new CounterMap<Pair<Pair<Integer, Integer>, Integer>, Integer>();
 			
 			for (SentencePair pair : trainingData) {
-				// count(f_j, e_i) where j = 1, ..., m 
-				Pair<Integer, Integer> s_pair = new Pair(pair.getSourceWords(), pair.getTargetWords());
-
-				for (int i = 0; i < pair.getSourceWords().size(); i++)
-					for (int j = 0; j < pair.getTargetWords().size(); j++) {
-						Pair<Pair<Integer, Integer>, Integer> p = new Pair(s_pair, j);
-						currentConditionalCounter.incrementCount(pair.getTargetWords().get(j), pair.getSourceWords().get(i), conditionalCounter.getCount(pair.getTargetWords().get(j), pair.getSourceWords().get(i)) * positionCounter.getCount(p, Integer.valueOf(i)));
-						currentPositionCounter.incrementCount(p, Integer.valueOf(i), conditionalCounter.getCount(pair.getTargetWords().get(j), pair.getSourceWords().get(i)) * positionCounter.getCount(p, Integer.valueOf(i)));
+				int n = pair.getTargetWords().size();
+				List<String> e = pair.getTargetWords();
+				int m = pair.getSourceWords().size();
+				List<String> f = pair.getSourceWords();
+				int sum = 0;
+				Pair<Integer, Integer> s_pair = new Pair(n, m);				
+				for (int i = 0; i < n; i++) {
+					Pair<Pair<Integer, Integer>, Integer> p = new Pair(s_pair, Integer.valueOf(i));
+					for (int j = 0; j < m; j++) {
+						sum += conditionalCounter.getCount(f.get(j), e.get(i))
+								* positionCounter.getCount(p, Integer.valueOf(j));
+					}
+					sum += conditionalCounter.getCount(NULL_WORD, e.get(i))
+							* positionCounter.getCount(p, Integer.valueOf(-1));
+					
+					for (int j = 0; j < m; j++) {
+						double delta = conditionalCounter.getCount(f.get(j), e.get(i))
+								* positionCounter.getCount(p, Integer.valueOf(j)) / sum;
+						currentConditionalCounter.incrementCount(f.get(j), e.get(i), delta);
+						currentPositionCounter.incrementCount(p, Integer.valueOf(j), delta);
+					}
+					double delta = conditionalCounter.getCount(f.get(-1), e.get(i))
+							* positionCounter.getCount(p, Integer.valueOf(-1)) / sum;
+					currentConditionalCounter.incrementCount(NULL_WORD, e.get(i), delta);
+					currentPositionCounter.incrementCount(p, Integer.valueOf(-1), delta);
 				}
-				// count(f_0, e_i)
-				for (int j = 0; j < pair.getTargetWords().size(); j++) {
-					Pair<Pair<Integer, Integer>, Integer> p = new Pair(s_pair, Integer.valueOf(j));
-					currentConditionalCounter.incrementCount(pair.getTargetWords().get(j), NULL_WORD, conditionalCounter.getCount(pair.getTargetWords().get(j), NULL_WORD) * positionCounter.getCount(p, Integer.valueOf(0)));
-					currentPositionCounter.incrementCount(p, Integer.valueOf(0), conditionalCounter.getCount(pair.getTargetWords().get(j), NULL_WORD) * positionCounter.getCount(p, Integer.valueOf(0)));
-				}	
+				
 			}
 			
 			// Normalize to get p(e_i | f_j)	
-			conditionalCounter = Counters.conditionalNormalize(currentConditionalCounter);
-			positionCounter = Counters.conditionalNormalize(currentPositionCounter);
-			iter ++;
+			currentConditionalCounter = Counters.conditionalNormalize(currentConditionalCounter);
+			currentPositionCounter = Counters.conditionalNormalize(currentPositionCounter);
+			if (conditionalCounter.compareCounter(currentConditionalCounter) < 0.001 &&
+					positionCounter.compareCounter(currentPositionCounter) < 0.001)
+				break;
+			conditionalCounter = currentConditionalCounter;
+			positionCounter = currentPositionCounter;
 		}
 		
 	}
