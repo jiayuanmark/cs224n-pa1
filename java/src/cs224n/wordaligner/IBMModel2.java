@@ -1,6 +1,7 @@
 package cs224n.wordaligner;
 
 import cs224n.util.*;
+import java.lang.Math;
 import java.util.List;
 
 public class IBMModel2 implements WordAligner {
@@ -29,7 +30,8 @@ public class IBMModel2 implements WordAligner {
 		for (int tgtIdx = 0; tgtIdx < numTgtWords; ++tgtIdx) {
 			// Initialize with a null alignment
 			Pair<Pair<Integer, Integer>, Integer> p = new Pair(s_pair, Integer.valueOf(tgtIdx));
-			double score = conditionalCounter.getCount(tgtWords.get(tgtIdx), NULL_WORD);
+			double score = conditionalCounter.getCount(NULL_WORD, tgtWords.get(tgtIdx))
+					* positionCounter.getCount(p, Integer.valueOf(-1));
 			int maxIdx = -1;
 			
 			for (int srcIdx = 0; srcIdx < numSrcWords; ++srcIdx) {
@@ -52,7 +54,6 @@ public class IBMModel2 implements WordAligner {
 		IBMModel1 model = new IBMModel1();
 		model.train(trainingData);
 		conditionalCounter = model.getConditionalCounter();
-		
 		for (SentencePair pair : trainingData) {
 			int n = pair.getTargetWords().size();
 			List<String> e = pair.getTargetWords();
@@ -63,11 +64,12 @@ public class IBMModel2 implements WordAligner {
 			for (int i = 0; i < n; i++) {
 				Pair<Pair<Integer, Integer>, Integer> p = new Pair(s_pair, Integer.valueOf(i));
 				for (int j = 0; j < m; j++) {
-					positionCounter.incrementCount(p, Integer.valueOf(j), 1 / (m + 1));
+					positionCounter.incrementCount(p, Integer.valueOf(j), Math.random());
 				}
-				positionCounter.incrementCount(p, Integer.valueOf(-1), 1 / (m + 1));
+				positionCounter.incrementCount(p, Integer.valueOf(-1), Math.random());
 			}
 		}
+		positionCounter = Counters.conditionalNormalize(positionCounter);
 	}
 
 	@Override
@@ -85,7 +87,7 @@ public class IBMModel2 implements WordAligner {
 				List<String> e = pair.getTargetWords();
 				int m = pair.getSourceWords().size();
 				List<String> f = pair.getSourceWords();
-				int sum = 0;
+				double sum = 0.0;
 				Pair<Integer, Integer> s_pair = new Pair(n, m);				
 				for (int i = 0; i < n; i++) {
 					Pair<Pair<Integer, Integer>, Integer> p = new Pair(s_pair, Integer.valueOf(i));
@@ -102,7 +104,7 @@ public class IBMModel2 implements WordAligner {
 						currentConditionalCounter.incrementCount(f.get(j), e.get(i), delta);
 						currentPositionCounter.incrementCount(p, Integer.valueOf(j), delta);
 					}
-					double delta = conditionalCounter.getCount(f.get(-1), e.get(i))
+					double delta = conditionalCounter.getCount(NULL_WORD, e.get(i))
 							* positionCounter.getCount(p, Integer.valueOf(-1)) / sum;
 					currentConditionalCounter.incrementCount(NULL_WORD, e.get(i), delta);
 					currentPositionCounter.incrementCount(p, Integer.valueOf(-1), delta);
