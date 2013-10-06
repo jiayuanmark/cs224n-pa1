@@ -59,14 +59,15 @@ public class IBMModel2 implements WordAligner {
 			List<String> e = pair.getTargetWords();
 			int m = pair.getSourceWords().size();
 			List<String> f = pair.getSourceWords();
-			int sum = 0;
 			Pair<Integer, Integer> s_pair = new Pair(n, m);				
 			for (int i = 0; i < n; i++) {
 				Pair<Pair<Integer, Integer>, Integer> p = new Pair(s_pair, Integer.valueOf(i));
 				for (int j = 0; j < m; j++) {
-					positionCounter.incrementCount(p, Integer.valueOf(j), Math.random());
+					if (positionCounter.getCount(p, Integer.valueOf(j)) == 0)
+						positionCounter.incrementCount(p, Integer.valueOf(j), Math.random());
 				}
-				positionCounter.incrementCount(p, Integer.valueOf(-1), Math.random());
+				if (positionCounter.getCount(p, Integer.valueOf(-1)) == 0)
+					positionCounter.incrementCount(p, Integer.valueOf(-1), Math.random());
 			}
 		}
 		positionCounter = Counters.conditionalNormalize(positionCounter);
@@ -97,26 +98,24 @@ public class IBMModel2 implements WordAligner {
 					}
 					sum += conditionalCounter.getCount(NULL_WORD, e.get(i))
 							* positionCounter.getCount(p, Integer.valueOf(-1));
-					
 					for (int j = 0; j < m; j++) {
 						double delta = conditionalCounter.getCount(f.get(j), e.get(i))
-								* positionCounter.getCount(p, Integer.valueOf(j)) / sum;
+								* (positionCounter.getCount(p, Integer.valueOf(j)) / sum);
 						currentConditionalCounter.incrementCount(f.get(j), e.get(i), delta);
 						currentPositionCounter.incrementCount(p, Integer.valueOf(j), delta);
 					}
 					double delta = conditionalCounter.getCount(NULL_WORD, e.get(i))
-							* positionCounter.getCount(p, Integer.valueOf(-1)) / sum;
+							* (positionCounter.getCount(p, Integer.valueOf(-1)) / sum);
 					currentConditionalCounter.incrementCount(NULL_WORD, e.get(i), delta);
 					currentPositionCounter.incrementCount(p, Integer.valueOf(-1), delta);
-				}
-				
+				}	
 			}
 			
 			// Normalize to get p(e_i | f_j)	
 			currentConditionalCounter = Counters.conditionalNormalize(currentConditionalCounter);
 			currentPositionCounter = Counters.conditionalNormalize(currentPositionCounter);
-			if (conditionalCounter.compareCounter(currentConditionalCounter) < 0.001 &&
-					positionCounter.compareCounter(currentPositionCounter) < 0.001)
+			if (conditionalCounter.compareCounter(currentConditionalCounter) < 0.01 &&
+					positionCounter.compareCounter(currentPositionCounter) < 0.01)
 				break;
 			conditionalCounter = currentConditionalCounter;
 			positionCounter = currentPositionCounter;
