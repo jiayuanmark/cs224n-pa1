@@ -88,25 +88,28 @@ public class IBMModel2 implements WordAligner {
 				List<String> e = pair.getTargetWords();
 				int m = pair.getSourceWords().size();
 				List<String> f = pair.getSourceWords();
-				double sum = 0.0;
 				Pair<Integer, Integer> s_pair = new Pair(n, m);				
 				for (int i = 0; i < n; i++) {
 					Pair<Pair<Integer, Integer>, Integer> p = new Pair(s_pair, Integer.valueOf(i));
+					double sum = 0.0;
 					for (int j = 0; j < m; j++) {
 						sum += conditionalCounter.getCount(f.get(j), e.get(i))
 								* positionCounter.getCount(p, Integer.valueOf(j));
 					}
 					sum += conditionalCounter.getCount(NULL_WORD, e.get(i))
 							* positionCounter.getCount(p, Integer.valueOf(-1));
+					System.out.println("sum: " + sum);
 					for (int j = 0; j < m; j++) {
 						double delta = conditionalCounter.getCount(f.get(j), e.get(i))
 								* (positionCounter.getCount(p, Integer.valueOf(j)) / sum);
 						currentConditionalCounter.incrementCount(f.get(j), e.get(i), delta);
 						currentPositionCounter.incrementCount(p, Integer.valueOf(j), delta);
+						System.out.println("delta: " + delta);
 					}
 					double delta = conditionalCounter.getCount(NULL_WORD, e.get(i))
 							* (positionCounter.getCount(p, Integer.valueOf(-1)) / sum);
 					currentConditionalCounter.incrementCount(NULL_WORD, e.get(i), delta);
+					System.out.println("delta: " + delta);
 					currentPositionCounter.incrementCount(p, Integer.valueOf(-1), delta);
 				}	
 			}
