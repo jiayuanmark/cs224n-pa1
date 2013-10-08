@@ -8,6 +8,7 @@ import java.util.List;
 public class IBMModel2SpedUp implements WordAligner {
 
 	private static final long serialVersionUID = -6202996450784531039L;
+	private static final double min_delta = 0.01;
 
 	// target conditioned by source
 	private CounterMap<String, String> conditionalCounter;
@@ -133,8 +134,10 @@ public class IBMModel2SpedUp implements WordAligner {
 			// Normalize to get p(e_i | f_j)	
 			currentConditionalCounter = Counters.conditionalNormalize(currentConditionalCounter);
 			currentPositionCounter = Counters.conditionalNormalize(currentPositionCounter);
-			if (conditionalCounter.compareCounter(currentConditionalCounter) < 0.01 &&
-					positionCounter.compareCounter(currentPositionCounter) < 0.01)
+			
+			if (	iter % 100 == 0 &&
+					conditionalCounter.compareCounter(currentConditionalCounter) < min_delta &&
+					positionCounter.compareCounter(currentPositionCounter) < min_delta)
 				break;
 			conditionalCounter = currentConditionalCounter;
 			positionCounter = currentPositionCounter;			
