@@ -8,12 +8,12 @@ import java.util.List;
 public class IBMModel2SpedUp implements WordAligner {
 
 	private static final long serialVersionUID = -6202996450784531039L;
-	private static final double min_delta = 0.01;
+	private static final double DELTA = 0.01;
+	private static final double EPS = 1e-10;
 
 	// target conditioned by source
 	private CounterMap<String, String> conditionalCounter;
 	private CounterMap<Integer, Integer> positionCounter;
-	
 	
 	public IBMModel2SpedUp() {
 		conditionalCounter = new CounterMap<String, String>();
@@ -97,6 +97,7 @@ public class IBMModel2SpedUp implements WordAligner {
 			currentPositionCounter = new CounterMap<Integer, Integer>();
 			
 			// For each of the sentence pair
+			double sum, delta;
 			for (SentencePair pair : trainingData) {
 				int n = pair.getTargetWords().size();
 				int m = pair.getSourceWords().size();
@@ -108,25 +109,35 @@ public class IBMModel2SpedUp implements WordAligner {
 				
 				for (int i = 0; i < n; i++) {
 					int p = hash(s_pair, i);
-					double sum = 0.0;
+					
+					// Denominator
+					sum = 0.0;
 					for (int j = 0; j < m; j++) {
 						sum += conditionalCounter.getCount(f.get(j), e.get(i))
 								* positionCounter.getCount(p, Integer.valueOf(j));
 					}
 					sum += conditionalCounter.getCount(NULL_WORD, e.get(i))
 							* positionCounter.getCount(p, Integer.valueOf(-1));
-					//System.out.println("sum: " + sum);
+					
+					// Get rid of NaN
+					if (Math.abs(sum) < EPS) {
+						System.out.print("Too small: " + sum);
+						continue;
+					}
+					
+					// Probabilistic counts 
 					for (int j = 0; j < m; j++) {
-						double delta = conditionalCounter.getCount(f.get(j), e.get(i))
+						delta = conditionalCounter.getCount(f.get(j), e.get(i))
 								* (positionCounter.getCount(p, Integer.valueOf(j)) / sum);
 						currentConditionalCounter.incrementCount(f.get(j), e.get(i), delta);
 						currentPositionCounter.incrementCount(p, Integer.valueOf(j), delta);
-						//System.out.println("delta: " + delta);
 					}
-					double delta = conditionalCounter.getCount(NULL_WORD, e.get(i))
+					
+					// NULL word
+					delta = conditionalCounter.getCount(NULL_WORD, e.get(i))
 							* (positionCounter.getCount(p, Integer.valueOf(-1)) / sum);
+					
 					currentConditionalCounter.incrementCount(NULL_WORD, e.get(i), delta);
-					//System.out.println("delta: " + delta);
 					currentPositionCounter.incrementCount(p, Integer.valueOf(-1), delta);
 				}	
 			}
@@ -136,8 +147,8 @@ public class IBMModel2SpedUp implements WordAligner {
 			currentPositionCounter = Counters.conditionalNormalize(currentPositionCounter);
 			
 			if (	iter % 100 == 0 &&
-					conditionalCounter.compareCounter(currentConditionalCounter) < min_delta &&
-					positionCounter.compareCounter(currentPositionCounter) < min_delta)
+					conditionalCounter.compareCounter(currentConditionalCounter) < DELTA &&
+					positionCounter.compareCounter(currentPositionCounter) < DELTA)
 				break;
 			conditionalCounter = currentConditionalCounter;
 			positionCounter = currentPositionCounter;			
