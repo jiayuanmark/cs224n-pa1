@@ -1,23 +1,29 @@
 package cs224n.wordaligner;
 
-import cs224n.util.*;
+import cs224n.util.CounterMap;
+import cs224n.util.Counters;
 import java.lang.Math;
 import java.util.List;
 
-public class IBMModel2 implements WordAligner {
+public class IBMModel2SpedUp implements WordAligner {
 
 	private static final long serialVersionUID = -6202996450784531039L;
-	private static final double min_delta = 0.00001;
 
 	// target conditioned by source
 	private CounterMap<String, String> conditionalCounter;
-	private CounterMap<Pair<Pair<Integer, Integer>, Integer>, Integer> positionCounter;
+	private CounterMap<Integer, Integer> positionCounter;
 	
-	public IBMModel2() {
+	
+	public IBMModel2SpedUp() {
 		conditionalCounter = new CounterMap<String, String>();
-		positionCounter = new CounterMap<Pair<Pair<Integer, Integer>, Integer>, Integer>();
+		positionCounter = new CounterMap<Integer, Integer>();
 	}
 	
+	
+	// cantor mapping hash (n, m, i) into one integer
+	private static final int hash(int n, int m) {
+		return (n + m) * (n + m +1) / 2 + m;
+	}
 	
 	@Override
 	public Alignment align(SentencePair sentencePair) {
@@ -26,10 +32,13 @@ public class IBMModel2 implements WordAligner {
 		int numTgtWords = sentencePair.getTargetWords().size();
 		List<String> srcWords = sentencePair.getSourceWords();
 		List<String> tgtWords = sentencePair.getTargetWords();
-		Pair<Integer, Integer> s_pair = new Pair(numTgtWords, numSrcWords);
+		
+		int s_pair = hash(numTgtWords, numSrcWords);
+		
 		for (int tgtIdx = 0; tgtIdx < numTgtWords; ++tgtIdx) {
 			// Initialize with a null alignment
-			Pair<Pair<Integer, Integer>, Integer> p = new Pair(s_pair, Integer.valueOf(tgtIdx));
+			int p = hash(s_pair, tgtIdx);
+			
 			double score = conditionalCounter.getCount(NULL_WORD, tgtWords.get(tgtIdx))
 					* positionCounter.getCount(p, Integer.valueOf(-1));
 			int maxIdx = -1;
@@ -56,12 +65,10 @@ public class IBMModel2 implements WordAligner {
 		conditionalCounter = model.getConditionalCounter();
 		for (SentencePair pair : trainingData) {
 			int n = pair.getTargetWords().size();
-			List<String> e = pair.getTargetWords();
 			int m = pair.getSourceWords().size();
-			List<String> f = pair.getSourceWords();
-			Pair<Integer, Integer> s_pair = new Pair(n, m);				
+			int s_pair = hash(n, m);				
 			for (int i = 0; i < n; i++) {
-				Pair<Pair<Integer, Integer>, Integer> p = new Pair(s_pair, Integer.valueOf(i));
+				int p = hash(s_pair, i);
 				for (int j = 0; j < m; j++) {
 					if (positionCounter.getCount(p, Integer.valueOf(j)) == 0)
 						positionCounter.incrementCount(p, Integer.valueOf(j), Math.random());
@@ -79,14 +86,14 @@ public class IBMModel2 implements WordAligner {
 		System.out.println("Finish Model 1 initialization.");
 		
 		CounterMap<String, String> currentConditionalCounter;
-		CounterMap<Pair<Pair<Integer, Integer>, Integer>, Integer> currentPositionCounter;
+		CounterMap<Integer, Integer> currentPositionCounter;
 		
 		for (int iter = 1; iter <= 2000; iter++) {
 			
 			if (iter % 100 == 0) System.out.println("Iter: " + iter);
 			
 			currentConditionalCounter = new CounterMap<String, String>();
-			currentPositionCounter = new CounterMap<Pair<Pair<Integer, Integer>, Integer>, Integer>();
+			currentPositionCounter = new CounterMap<Integer, Integer>();
 			
 			// For each of the sentence pair
 			for (SentencePair pair : trainingData) {
@@ -96,10 +103,10 @@ public class IBMModel2 implements WordAligner {
 				List<String> e = pair.getTargetWords();
 				List<String> f = pair.getSourceWords();
 				
-				Pair<Integer, Integer> s_pair = new Pair<Integer, Integer>(n, m);				
+				int s_pair = hash(n, m);				
 				
 				for (int i = 0; i < n; i++) {
-					Pair<Pair<Integer, Integer>, Integer> p = new Pair(s_pair, Integer.valueOf(i));
+					int p = hash(s_pair, i);
 					double sum = 0.0;
 					for (int j = 0; j < m; j++) {
 						sum += conditionalCounter.getCount(f.get(j), e.get(i))
@@ -130,9 +137,7 @@ public class IBMModel2 implements WordAligner {
 					positionCounter.compareCounter(currentPositionCounter) < 0.01)
 				break;
 			conditionalCounter = currentConditionalCounter;
-			positionCounter = currentPositionCounter;
+			positionCounter = currentPositionCounter;			
 		}
-		
 	}
-
 }

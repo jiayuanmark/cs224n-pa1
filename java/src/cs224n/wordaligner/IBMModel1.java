@@ -76,7 +76,7 @@ public class IBMModel1 implements WordAligner {
 					for (String srcWord : pair.getSourceWords())
 						currentConditionalCounter.incrementCount(srcWord, tgtWord, conditionalCounter.getCount(srcWord, tgtWord)/sum);
 			
-				// count(f_0, e_i)
+					// count(f_0, e_i)
 					currentConditionalCounter.incrementCount(NULL_WORD, tgtWord, conditionalCounter.getCount(NULL_WORD, tgtWord)/sum);
 				}
 			}
