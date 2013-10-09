@@ -14,7 +14,7 @@ public class Counters {
     Counter<E> normalizedCounter = new Counter<E>();
     double total = counter.totalCount();
     for (E key : counter.keySet()) {
-    	if (total == 0.0) normalizedCounter.setCount(key, counter.getCount(key));
+    	if (Math.abs(total) < 1e-10) normalizedCounter.setCount(key, 0.0);
     	else normalizedCounter.setCount(key, counter.getCount(key) / total);
     }
     return normalizedCounter;

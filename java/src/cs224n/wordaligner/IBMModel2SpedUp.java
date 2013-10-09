@@ -10,8 +10,12 @@ public class IBMModel2SpedUp implements WordAligner {
 	private static final long serialVersionUID = -6202996450784531039L;
 	private static final double DELTA = 0.01;
 	private static final double EPS = 1e-10;
-	private static final double LEAK = 0.08;
-	private static final double LAMBDA = 0.01;
+	//private static final double LEAK = 0.08; // french
+	//private static final double LAMBDA = 0.01; // french
+	private static final double LAMBDA = 0.01; // hindi
+	private static final double LEAK = 0.08; // hindi
+	
+
 	
 	// target conditioned by source
 	private CounterMap<String, String> conditionalCounter;
@@ -36,19 +40,21 @@ public class IBMModel2SpedUp implements WordAligner {
 		List<String> srcWords = sentencePair.getSourceWords();
 		List<String> tgtWords = sentencePair.getTargetWords();
 		
-		int length_key = hash(numTgtWords, numSrcWords);
 		
+		int length_key = hash(numTgtWords, numSrcWords);
 		for (int tgtIdx = 0; tgtIdx < numTgtWords; ++tgtIdx) {
 			// Initialize with a null alignment
 			int key = hash(length_key, tgtIdx);
 			
 			double score = conditionalCounter.getCount(NULL_WORD, tgtWords.get(tgtIdx))
 					* positionCounter.getCount(key, Integer.valueOf(-1));
+			score = Double.isNaN(score) ? 0.0 : score;
 			int maxIdx = -1;
 			
 			for (int srcIdx = 0; srcIdx < numSrcWords; ++srcIdx) {
 				double delta = conditionalCounter.getCount(srcWords.get(srcIdx), tgtWords.get(tgtIdx))
 						* positionCounter.getCount(key, Integer.valueOf(srcIdx));
+				
 				if (delta >= score) {
 					score = delta;
 					maxIdx = srcIdx;
@@ -143,6 +149,7 @@ public class IBMModel2SpedUp implements WordAligner {
 					for (int j = 0; j < m; j++) {
 						delta = conditionalCounter.getCount(f.get(j), e.get(i))
 								* (positionCounter.getCount(p, Integer.valueOf(j)) / sum);
+						delta = Double.isNaN(delta) ? 0.0 : delta;
 						currentConditionalCounter.incrementCount(f.get(j), e.get(i), delta);
 						currentPositionCounter.incrementCount(p, Integer.valueOf(j), delta);
 					}
@@ -150,6 +157,7 @@ public class IBMModel2SpedUp implements WordAligner {
 					// NULL word
 					delta = conditionalCounter.getCount(NULL_WORD, e.get(i))
 							* (positionCounter.getCount(p, Integer.valueOf(-1)) / sum);
+					delta = Double.isNaN(delta) ? 0.0 : delta;
 					
 					currentConditionalCounter.incrementCount(NULL_WORD, e.get(i), delta);
 					currentPositionCounter.incrementCount(p, Integer.valueOf(-1), delta);
@@ -173,7 +181,11 @@ public class IBMModel2SpedUp implements WordAligner {
 			
 			// Update parameters
 			conditionalCounter = currentConditionalCounter;
-			positionCounter = currentPositionCounter;			
+			positionCounter = currentPositionCounter;
 		}
+
+		//System.out.println("***********************");
+		//System.out.println(positionCounter.toString());
+		//System.out.println("***********************");
 	}
 }

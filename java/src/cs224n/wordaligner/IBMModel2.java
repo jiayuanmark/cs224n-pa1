@@ -81,7 +81,7 @@ public class IBMModel2 implements WordAligner {
 		CounterMap<String, String> currentConditionalCounter;
 		CounterMap<Pair<Pair<Integer, Integer>, Integer>, Integer> currentPositionCounter;
 		
-		for (int iter = 1; iter <= 2000; iter++) {
+		for (int iter = 1; iter <= 1000; iter++) {
 			
 			if (iter % 100 == 0) System.out.println("Iter: " + iter);
 			
