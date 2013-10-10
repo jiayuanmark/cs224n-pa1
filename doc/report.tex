@@ -7,6 +7,7 @@
 \usepackage{amssymb}
 \usepackage{algorithmic}
 \usepackage{algorithm}
+%\usepackage{times}
 
 \setlength\parindent{0pt}
 
@@ -24,9 +25,7 @@
 
 \section{Word Alignment}
 
-\subsection{Basic Algorithms}
-
-\subsubsection{IBM Model 1}
+\subsection{IBM Model 1 \& 2}
 Since the $q(\cdot)$ parameter in Model 1 has a very simple form
 \begin{equation}
 q(a_i | i, n, m) = \frac{1}{m+1}
@@ -42,16 +41,68 @@ p(a_1, \dots, a_n | f_1, \dots, f_m, e_1, \dots, e_n, n) \\
 \end{split}
 \end{equation}
 Therefore, we can have alignment variables $\{ a_i \}_{i=1}^n$ totally independent of $q(\cdot)$ parameters.
-In EM iterations, we should only keep track of $t(\cdot)$ parameters, which are just the normalized counts of different words' cooccurences.
+During EM iterations, we should only keep track of $t(\cdot)$ parameters, which are just the normalized counts of different words' cooccurences.
+The pseudocode of IBM Model 2 is in Algorithm \ref{alg:ibm2}, where we use probabilistic counts $\delta(\cdot)$ to estimate $t(\cdot)$ and $q(\cdot)$.
 
+\begin{algorithm}[t]
+\caption{\label{alg:ibm2} {\bf IBM Model 2}}
+\begin{algorithmic}[1]
+\STATE \textbf{Input:} A training corpus $\{ (f^{(k)}, e^{(k)}) \}_{k=1}^n$
+\STATE Initialize $t(e | f)$ using Model 1's result and $q(\cdot)$ parameters using
+methods in section \ref{sec:imp}.
+\FOR{$\textrm{iter} = 1 \dots T$}
+	\STATE Set all counts $c(\dots) = 0$
+	\STATE \texttt{// For each training sentences}
+	\FOR{$k = 1 \dots n$}
+		\STATE \texttt{// For each position in target sentences}
+		\FOR{$i = 1 \dots n_k$}
+			\STATE $Z_i \leftarrow 
+			\sum_{j^\prime = 1}^{m_k} q(j^\prime | i, n_k, m_k) t(e_i^{(k)} | f_{j^\prime}^{(k)}) \qquad$
+			\texttt{// Partition function}
+			\STATE \texttt{// For each position in source sentences}
+			\FOR{$j = 1 \dots m_k$}
+				\STATE $\delta(k, i,  j) \leftarrow \frac{q(j | i, n_k, m_k) t(e_i^{(k)} | f_j^{(k)})}{Z_i}$
+				\STATE $c(e_i^{(k)}, f_j^{(k)}) \leftarrow c(e_i^{(k)}, f_j^{(k)}) + \delta(k, i, j)$
+				\STATE $c(j, i, n_k, m_k) \leftarrow c(j, i, n_k, m_k) + \delta(k, i, j)$
+			\ENDFOR
+		\ENDFOR
+	\ENDFOR
+	\STATE Normalize to obtain $t(e | f) = \frac{c(e, f)}{c(f)} \qquad q(j | i, n, m) = \frac{c(j, i, n, m)}{c(i, n, m)}$
+	\STATE Check convergence using methods in section \ref{sec:imp}
+\ENDFOR
+\end{algorithmic}
+\end{algorithm}
 
-\subsubsection{IBM Model 2}
+\subsection{Implementation Detail}\label{sec:imp}
+In Model 1, we uniformly initialize the parameters $t(\cdot)$.
+In Model 2, we initialize the translation parameters $t(\cdot)$ using the results of Model 1, and we have two different initialization strategies for the position parameters $q(\cdot)$, \textbf{random} and \textbf{diagonal} initialization. Random initialization randomly chooses the initial parameters $q(\dot)$, and normalize it appropriately to make sure that $q(\cdot)$ is a valid conditional probability.
+Diagonal initialization is inspired by \cite{dyer2013simple}. Since it is reasonable to assume that words appear around the same relative positions should be aligned together,  we have
+\begin{equation}
+q(j | i, n, m) = \left\{
+\begin{array}{cc}
+p_0 & j = -1 \\
+(1-p_0) \times \frac{e^{-\lambda h(i, j, n, m)}}{Z_\lambda(i, n, m)} & 0 \le j \le m \\
+0 & \textrm{otherwise}
+\end{array}\right.
+\qquad
+h(i, j, n, m) = \Bigg| \frac{i+1}{n} - \frac{j+1}{m} \Bigg|
+\end{equation}
+This initialization is parameterized by a null alignment probability $p_0$ and $\lambda \ge 0$ which controls how strongly the model favors alignment points close to the diagonal.
+When $\lambda \rightarrow 0$, the initialized distribution approaches $q(\cdot)$ in Model 1.
+When $\lambda$ gets larger, the model is initialized to be less likely to deviate from a perfectly diagonal alignment, which is especially helpful for some particular language pairs (such as French-English). For more discussion, please see section \ref{sec:result}.
 
+\vspace{0.1cm}
 
+To check convergence between iterations, we calculate the $\ell_{\infty}$ distance between the parameters in two successive runs. If one $\| \cdot \|_\infty$ is smaller than a predetermined thresold, the algorithm will terminate. Otherwise, it will only terminate util it reaches the maximum number of iterations.
 
-\subsection{Initialization and Convergence Criterion}
+\vspace{0.1cm}
 
-\subsection{Result}
+For code efficiency, we encode triplets $\langle i, n, m \rangle$ into one integer so that we can use \texttt{CounterMap} in the skeleton code with primitive \texttt{int} types. Since $i$, $n$ and $m$ are small non-negative values, we choose to use two successive \emph{Cantor mapping} to do the encoding, which proves to be quite efficient.
+
+\subsection{Results}\label{sec:result}
+The AER results of PMI/IBM1/IBM2 models on different language pairs are available in Table \ref{tab:dev_result} (development set) and Table \ref{tab:test_result}  (test set). We train our models using $10$k sentence pairs (except for Hindi, which has only $3441$ sentence pairs in total) and set the maximum iteration number to $300$ (AER won't change too much after $300$ runs).
+
+In general, the performance of IBM2 is better than that of IBM1, whose performance is better than PMI's performance.
 
 \begin{table}
 \begin{center}
@@ -84,9 +135,11 @@ Model2 & 0.2858 & 0.5777 & 0.5710 \\
 \end{table}
 
 
-
-\subsection{Error Analysis}
+\subsection{Error Analysis and Discussion}
 
 \section{MT features}
+
+\bibliographystyle{plain}
+\bibliography{citations}
 
 \end{document}
