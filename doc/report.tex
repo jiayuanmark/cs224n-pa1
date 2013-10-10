@@ -144,6 +144,7 @@ Model2 & 0.2858 & 0.5777 & 0.5710 \\
 
 \subsection{Error Analysis and Discussions}
 Since both of us are native Chinese speakers, we focus ourselves on analyzing Chinese-English alignment. We observe that the alignment tables (see Figure \ref{img:align}) for Chinese-English are less concerntrated on the diagonal than French-English alignment, which means word orders do change a lot.
+However, our models seem to be capable of dealing with a vast range of word order differences.
 Two examples Chinese-English alignment are shown in Figure \ref{img:align}.
 \begin{figure}
 \begin{center}
@@ -153,19 +154,46 @@ Two examples Chinese-English alignment are shown in Figure \ref{img:align}.
 \subfloat[Example 2]{
     \includegraphics[width=0.4\textwidth]{align_table_1}
 }
-\caption{Two examples of Chinese-English alignment. Blue for IBM1, yellow for IBM2.}\label{img:align}
+\caption{Two examples of Chinese-English alignment. Blue (IBM1), yellow (IBM2), green(IBM1 \& IBM2)}\label{img:align}
 \end{center}
 \end{figure}
 Example $1$ has successful aligned phrase pairs such as ``shanghai'' (correct), ``pudong''(correct), ``development''(correct), ``with''(correct) and ``legal system'' (almost correct). The algorithm misaligns ``establishment'' and the last Chinese phrase. ``Be in step with'' together translates the last Chinese phrase. Because we model ``be in step with'' as four independent words, it is quite difficult for the algorithms to find the correct alignment.
 
-What is interesting in Example 1 is that the alignment algorithm successfully aligns the location names, although they do have non-trivial word order changes.
-This observation leads to Example 2 which includes both location names and names of people.
-Names of people are more difficult because it is very unlikely that the same names will appear several times in the corpus and characters in names can also be used 
+What is interesting in Example 1 is that the alignment algorithm successfully aligned the location names, although they do have non-trivial word order changes.
+This observation leads to Example 2 which includes both location names and person's names.
+Person's people are more difficult because it is very unlikely that the same names will appear several times in the corpus and characters in names can also be used 
 in regular phrases.
-The algorithms, not surprisingly, failed at aligning both names.
-However, the mistake is somewhat tolerable because it just swapped the correct alignment! This makes us believe that the algorithms succeeded in recognizing that these phrases are people's names. The algorithm failed at producing correct alignment simply because it did not see any enough repeatations of those names in the training data.
+In Example 2, both algorithms (IBM1 and IBM2), not surprisingly, failed at aligning both names (``jinhu xie'' and ``chijian zhang'').
+However, the mistake is somewhat tolerable because it approxmiately swapped the correct alignment for those names! This makes us believe that the algorithms succeeded in recognizing that these phrases are person's names. The algorithm failed at producing correct alignment simply because it did not see any enough repetitions of those names in the training data.
 
-\section{MT Features}
+\vspace{0.1cm}
+
+The word alignment model does sometimes align function words (such as \emph{the}, \emph{a}, and \emph{of}) with content words. For example, in Example 1, the model aligned ``the'' to the phrase ``establishment'' in Chinese.
+
+\vspace{0.1cm}
+
+The most common alignment errors in Chinese-English are failures of aligning Chinese words with English phrases with multiple words. Most Chinese words just contains two characters, while the equivalent English phrases can span several words. More importantly, these equivalent English phrases are not necessarily adjacent to each other, like``as far as \dots be concerned'', which adds to the difficulty of alignment.
+
+\section{MT Features (with Extra Credit)}
+The BLEU scores for our experiments is in Table \ref{tab:bleu}. All these results are averaged across three different runs on two machines. We tried the following features:
+\begin{table}
+\begin{center}
+\begin{tabular}{c|c|c|c|c}
+\hline
+\textbf{Systems} & Baseline & Dimension Feature & Vowel Feature & Derivational Feature \\
+\hline
+\textbf{BLEU Score} & 14.954 & 15.098 & 15.219 & 15.173 \\
+\hline
+\end{tabular}
+\caption{BLEU scores on baseline and different systems}\label{tab:bleu}
+\end{center}
+\end{table}
+\begin{itemize}
+\item \textit{Dimension feature} We add source/target rule dimensions as indicator features.
+\item \textit{Vowel feature} We add the number of vowel alphabets' appearances in source-target pairs as two-dimensional indicator features.
+\item \textit{Derivational rule feature} We add the average target length appeared in the previous derivational rules as numerical features.
+\end{itemize}
+
 
 \bibliographystyle{plain}
 \bibliography{citations}
