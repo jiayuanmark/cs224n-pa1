@@ -7,6 +7,7 @@
 \usepackage{amssymb}
 \usepackage{algorithmic}
 \usepackage{algorithm}
+\usepackage{subfig}
 %\usepackage{times}
 
 \setlength\parindent{0pt}
@@ -99,10 +100,17 @@ To check convergence between iterations, we calculate the $\ell_{\infty}$ distan
 
 For code efficiency, we encode triplets $\langle i, n, m \rangle$ into one integer so that we can use \texttt{CounterMap} in the skeleton code with primitive \texttt{int} types. Since $i$, $n$ and $m$ are small non-negative values, we choose to use two successive \emph{Cantor mapping} to do the encoding, which proves to be quite efficient.
 
-\subsection{Results}\label{sec:result}
-The AER results of PMI/IBM1/IBM2 models on different language pairs are available in Table \ref{tab:dev_result} (development set) and Table \ref{tab:test_result}  (test set). We train our models using $10$k sentence pairs (except for Hindi, which has only $3441$ sentence pairs in total) and set the maximum iteration number to $300$ (AER won't change too much after $300$ runs).
+\subsection{Results and Discussions}\label{sec:result}
+The AER results of PMI/IBM1/IBM2 models on different language pairs are available in Table \ref{tab:dev_result} (development set) and Table \ref{tab:test_result}  (test set). We train our models using $10$k sentence pairs (except for Hindi, which has only $3441$ sentence pairs in total) with the maximum iteration number being $300$ (AER won't change too much after $300$ runs) and diagonal initialization for IBM2.
+Our PMI models take less than one minute to run, IBM1 models finish within five minutes. For IBM2 models, it usually take around 15 minutes to run 100 iterations.
 
 In general, the performance of IBM2 is better than that of IBM1, whose performance is better than PMI's performance.
+An interesting observation here is Model 2 has significant improvement over Model 1 in French-English alignment, and the performance is higher (from 0.30 to 0.28) when using \textbf{diagonal} initialization in section \ref{sec:imp} with large $\lambda$. This might be due to the fact that French and English words are comparatively well aligned with respect to their locations in the sentence.
+
+For Hindi and Chinese, the word order changes are more significant than French, which explains why IBM2 gives much less improvement over IBM1 (than in French-English case). In both cases, using random initialization gives worse performance than using diagonal initialization with a small $\lambda$ (flat probabilities). This is because random strategies may give us a bad local minima, while the flat stategies probably avoid these local minima by constraining EM to start from a IBM1 setup.
+
+In the case of Hindi, using random initialization with IBM2 results in a worse performance than IBM1. This is because we don't have enough training data for Hindi, so that IBM2 with more parameters is more likely to overfit.
+Therefore, starting from a uniform distribution of $q(\cdot)$ is a good way to compensate inadequate training data in Hindi, but still IBM2 gives very little (almost no) performance boost over IBM1 when aligning Hindi with English.
 
 \begin{table}
 \begin{center}
@@ -134,10 +142,30 @@ Model2 & 0.2858 & 0.5777 & 0.5710 \\
 \end{center}
 \end{table}
 
+\subsection{Error Analysis and Discussions}
+Since both of us are native Chinese speakers, we focus ourselves on analyzing Chinese-English alignment. We observe that the alignment tables (see Figure \ref{img:align}) for Chinese-English are less concerntrated on the diagonal than French-English alignment, which means word orders do change a lot.
+Two examples Chinese-English alignment are shown in Figure \ref{img:align}.
+\begin{figure}
+\begin{center}
+\subfloat[Example 1]{
+    \includegraphics[width=0.4\textwidth]{align_table_2}
+}
+\subfloat[Example 2]{
+    \includegraphics[width=0.4\textwidth]{align_table_1}
+}
+\caption{Two examples of Chinese-English alignment. Blue for IBM1, yellow for IBM2.}\label{img:align}
+\end{center}
+\end{figure}
+Example $1$ has successful aligned phrase pairs such as ``shanghai'' (correct), ``pudong''(correct), ``development''(correct), ``with''(correct) and ``legal system'' (almost correct). The algorithm misaligns ``establishment'' and the last Chinese phrase. ``Be in step with'' together translates the last Chinese phrase. Because we model ``be in step with'' as four independent words, it is quite difficult for the algorithms to find the correct alignment.
 
-\subsection{Error Analysis and Discussion}
+What is interesting in Example 1 is that the alignment algorithm successfully aligns the location names, although they do have non-trivial word order changes.
+This observation leads to Example 2 which includes both location names and names of people.
+Names of people are more difficult because it is very unlikely that the same names will appear several times in the corpus and characters in names can also be used 
+in regular phrases.
+The algorithms, not surprisingly, failed at aligning both names.
+However, the mistake is somewhat tolerable because it just swapped the correct alignment! This makes us believe that the algorithms succeeded in recognizing that these phrases are people's names. The algorithm failed at producing correct alignment simply because it did not see any enough repeatations of those names in the training data.
 
-\section{MT features}
+\section{MT Features}
 
 \bibliographystyle{plain}
 \bibliography{citations}
