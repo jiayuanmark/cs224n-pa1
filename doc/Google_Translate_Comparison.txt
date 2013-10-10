@@ -1,0 +1,274 @@
+original:
+le parlement n' a pas ratifié l' amendement pour la libération de tymosenko
+our translation
+parliament has not ratified the amendment for the liberation of tymosenko
+google translation:
+parliament has not ratified the amendment to the release of Tymosenko
+error:
+None
+
+
+original:
+le parlement ukrainien a refusé , dans la cadre d' un amendement au droit pénal , le projet d' annulation du paragraphe relatif à l' inculpation de julia tymosenko , la chef de l' opposition .
+our translation:
+the ukrainian parliament has refused , in the context of an amendment to the criminal law , the project cancellation of the paragraph establishing the prosecution of julia tymosenko , the head of the opposition .
+google translation:
+Ukrainian parliament refused , as part of an amendment to the criminal law , the proposed cancellation of the paragraph on charges of julia Tymosenko , the Leader of the Opposition .
+error:
+inproper word usage of in the context of, but it didn’t hinder the human from reading.
+
+
+original:
+les députés ont refusé en deuxième lecture le projet de modification visant la réduction des peines pour délits économiques , qui aurait pu ouvrir les portes de la liberté pour l' ex-première ministre actuellement emprisonnée .
+our translation:
+members have refused at second reading of the proposed amendment reduction of penalties for economic crimes , which could open the doors of freedom for the former minister currently in prison .
+google translation:
+MEPs rejected on second reading the proposed amendment to reduce sentences for economic crimes , which could open the doors of freedom for the former prime minister is currently imprisoned .
+error:
+though it is different from google translation, but it didn’t come with an error.
+
+original:
+tymosenko a été condamnée en octobre à 7 ans de prison pour avoir conclu un accord à priori désavantageux avec la russie pour l' achat de gaz naturel .
+our translation:
+in october tymosenko was sentenced to seven years in prison for reaching an agreement in essence disadvantageous with russia for the purchase of natural gas .
+google translation:
+Tymosenko was sentenced in October to 7 years in prison for an agreement in principle disadvantage with Russia for the purchase of natural gas.
+error:
+there is a grammatically error, the “disadvantageous” should be “disadvantage”
+
+
+
+original:
+le jugement n' est pas définitif et le tribunal doit statuer sur l' appel de la condamnée en décembre .
+our translation:
+the ruling is not final and the tribunal must decide on the appeal of the sentenced in december .
+google translation:
+No judgment is not final and the court must rule on the appeal of the convicted in December.
+error:
+inproper word usage, it should be “rule on” instead of “decide on”
+
+original:
+tymosenko qualifie le jugement de vengeance politique du régime et a provoqué un processus de soupçons de partialité du tribunal également à l' ouest .
+our translation:
+tymosenko described the judgment of political revenge in the regime and caused a process of suspicion of the court also to the west .
+google translation:
+Tymosenko describes the judgment of political revenge plan and led a process of suspicion of bias court further to the west .
+error:
+no error
+
+original:
+le projet d' annuler le paragraphe 365 du droit pénal , sur la base duquel l' ex-premère ministre a été condamnée , a été signé par 147 députés .
+our translation:
+the project to cancel the paragraph 365 criminal law , on the basis of which the minister was sentenced , was signed by 147 deputies .
+google translation:
+the project to cancel the paragraph 365 of the criminal law on the basis of which the former First Minister was sentenced , was signed by 147 MPs.
+error:
+no error
+
+original:
+il aurait fallu 226 voix pour l' approuver .
+our translation:
+it would have taken 226 votes to approve it .
+google translation:
+would have required 226 votes to approve it .
+error:
+our translation seems better
+
+original:
+victoire libyenne
+our translation:
+victory libyan
+google translation:
+Libyan victory
+error:
+no error
+
+original:
+la libération ou rebellion libyenne a déjà ses vaincus .
+our translation:
+the release or rebellion libyan has already overcome .
+google translation:
+Libyan liberation or rebellion already has its losers.
+error:
+meaning is distorted by our translation.
+
+original:
+muammar kaddafi est enterré dans un endroit inconnu dans le désert et sans lui la guerre est terminée .
+our translation:
+muammar kaddafi is buried in an unknown place in the desert and without him the war is over .
+google translation:
+muammar kaddafi is buried in an unknown location in the desert and without him the war is over .
+error:
+no error
+
+original
+il reste à déterminer les vainqueurs .
+our translation:
+it remains to determine the winners .
+google translation:
+it remains to determine the winners .
+error:
+no error
+
+original:
+comme il est de coutume dans la région , les vainqueurs aux élections sont les islamistes , mais s' agit -il des modérés ou des radicaux .
+our translation:
+as is customary in the region , the winners in elections are the islamists , but is it moderates 
+google translation:
+as is customary in the region, winning the elections are Islamists, but there is moderate or radical .
+error:
+grammatical error and improper word, it should be there is instead of there is, but it seems google translation also incomplete
+
+original：
+le conseil national provisoire a décrété le droit habituel de la charia et nous savons déjà de quoi il s' agit .
+our translation:
+the national council provisional has the right of the sharia and we already know what it is .
+google translation:
+the provisional national council decreed the usual sharia law and we already know what it is a question .
+error
+our translation distorted the meaning, it lose “the question” and it should be “decreed the law” instead of “has the right of”
+
+original:
+la libye devient un pays sans criminalité car pour un vol on coupe la main .
+our translation:
+libya becomes a country without crime because for a flight the hand .
+google translation:
+Libya is a country without crime for a flight because the hand is cut.
+error:
+it distort the meaning, it lose the “is cut”, the meaning is incomplete.
+
+original:
+les femmes peuvent oublier l' émancipation , les non respectueuses éventuelles dela foi sont passibles de la peine capitale …
+our translation:
+women can forget emancipation , not respect possible faith are subject to capital punishment ...
+google translation:
+women can forget the emancipation do not respect any faith beyond are facing the death penalty …
+error
+correct, thought it replace some phrases
+
+original:
+c' est le coran qui va unir à la place de la personnalité du dictateur la société composée de tribus opposées .
+our translation:
+it is the quran which will unite in place of the personality of the dictator society made up of tribes .
+google translation:
+it is the Koran that will unite instead of the personality of the dictator society of opposing tribes.
+error:
+it distort the meaning, it lose the “opposing”
+
+original:
+en libye règnera un tel ordre comme nous ne pouvons pas nous le représenter et comme nous n' aimerions sûrement pas .
+our translation:
+in libya reign such an order as we can not be as and would definitely not .
+google translation:
+libya reign such an order as we can not represent us and as we surely would not .
+error:
+our translation distort the meaning, it lose “we can not represent us” part, and it hinder the reader from reading
+
+original:
+mais notre façon de vivre n' est pas unique , n' est pas objectivement la meilleure et ne serait probablement pas avantageuse pour les libyens .
+our translation:
+but our way of life is not unique , is not objectively the best and would probably not for libyans .
+google translation:
+but our way of life is not unique, is not objectively the best and probably would not be advantageous for Libyans.
+error:
+it lose the meaning of advantageous.
+
+original:
+il est particulièrement étonnant que les guerriers islamistes ont accepté l' aide avec reconnaissance des chiens infidèles .
+our translation:
+it is particularly surprising that the warrior islamists have agreed with the help of dogs infidels .
+google translation:
+it is particularly surprising that the Islamist warriors gratefully accepted the help of the infidels dogs.
+error:
+inproper word usage, it should be accept, here is not equivalent to agreed with.
+
+original:
+la seule excuse c' est que ce n' est pas un général américian qui dirigeait les frappes de l' otan mais plutôt allah dont ils célébraient la grandeur à chaque attaque .
+our translation:
+the only excuse is that this is not a general who led the nato but allah , which they hailed the grandeur to each attack .
+google translation:
+the only excuse is that this is not a american general who led the NATO strikes but allah they celebrated the greatness each attack.
+error:
+our translation replace a bunch of word but it is ok, maybe a little improper usage
+
+original:
+quand il s' agit donc de chercher les vainqueurs en libye , l' occident n' en fait pas partie
+our translation:
+when it is the winners in libya , the west is not included .
+google translation:
+So when it comes to look for winners in Libya , the West is not part
+error:
+no error
+
+original:
+nous avons participé aux tirs , servi l' islam et nos poilitiques se sont détournés du dictateur en tant qu' allié politique sans que cela n' amène aucun profit .
+our translation:
+we participated in the fire , served islam and our walked away from the dictator as political ally without no profit .
+google translation:
+we participated in the shooting served Islam and our poilitiques turned away from the dictator as a political ally without it brings no profit.
+error:
+improper word usage, fire is not the same as shooting. and it lose the “poilitiques” meaning
+
+original:
+après les récentes mauvaises expériences de l' afghanistan et l' irak , nous n' occupons pas militairement la libye .
+our translation:
+after the recent negative experiences of afghanistan and iraq , we do not militarily libya .
+google translation:
+after the recent bad experiences of Afghanistan and Iraq , we do not militarily occupy Libya .
+error:
+it lose the verb “occupy”
+
+original:
+il n' y donc pas de problème pour les locaux de se débarasser des " croisés " .
+our translation:
+so there is no problem for the premises of get rid of " crusaders " .
+google translation:
+so there is no problem for local to get rid of "crusaders" 
+error:
+it is ok
+
+original:
+est -ce que sans occupation du sol , les sociétés pétrolières auront facilement accés à l' or noir libyien .
+our translation:
+is it that without land , the oil companies have easy access to the black gold .
+google translation:
+is that without land , oil companies have easy access to the black gold libyien 
+error:
+it is ok
+
+original:
+peut-être pas autant et l' occident pourra finalement se vanter d' une protection desintéressée des droits de l' homme .
+our translation:
+perhaps not quite and the west will finally boast of protection of human rights .
+google translation:
+maybe not as much and the West will eventually boast a selfless protection of human rights .
+error:
+it is ok
+
+
+original:
+pour peu que nous en empêchent ces adeptes de la charia .
+our translation:
+if we these followers of sharia .
+google translation:
+as long as we keep these supporters of Sharia law .
+error:
+it lose meaning a lot and it is almost not the meaning of the sentence
+
+original
+une nouvelle ère de crise commence .
+our translation:
+a new era of crisis begins .
+google translation:
+a new era of crisis begins.
+error:
+no error
+
+original:
+la france et le reste de l' europe sont dans le viseur des investisseurs .
+our translation:
+france and the rest of europe are in the viewfinder of investors .
+google translation:
+France and the rest of Europe are in the viewfinder of investors.
+error:
+no error.

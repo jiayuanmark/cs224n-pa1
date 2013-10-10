@@ -30,8 +30,8 @@ public final class WordAlignmentTester {
   /**
    * Default location of the training and test corpora.
    */
-  //public static final String DATA_PATH = "/afs/ir/class/cs224n/pa1/data/";
-  public static final String DATA_PATH = "/Users/jiayuanm/Documents/cs224n/cs224n-pa1/data/";
+  public static final String DATA_PATH = "/afs/ir/class/cs224n/pa1/data/";
+  //public static final String DATA_PATH = "/Users/jiayuanm/Documents/cs224n/cs224n-pa1/data/";
   
   public static final String ENGLISH = "english";
   public static final String FRENCH = "french";

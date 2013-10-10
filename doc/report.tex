@@ -98,11 +98,11 @@ To check convergence between iterations, we calculate the $\ell_{\infty}$ distan
 
 \vspace{0.1cm}
 
-For code efficiency, we encode triplets $\langle i, n, m \rangle$ into one integer so that we can use \texttt{CounterMap} in the skeleton code with primitive \texttt{int} types. Since $i$, $n$ and $m$ are small non-negative values, we choose to use two successive \emph{Cantor mapping} to do the encoding, which proves to be quite efficient.
+For code efficiency, we encode triplets $\langle i, n, m \rangle$ into one integer so that we can use \texttt{CounterMap} in the skeleton code with primitive \texttt{int} types. Since $i$, $n$ and $m$ are small non-negative integers, we choose to use two successive \emph{Cantor mapping} to do the encoding, which proves to be quite efficient.
 
 \subsection{Results and Discussions}\label{sec:result}
 The AER results of PMI/IBM1/IBM2 models on different language pairs are available in Table \ref{tab:dev_result} (development set) and Table \ref{tab:test_result}  (test set). We train our models using $10$k sentence pairs (except for Hindi, which has only $3441$ sentence pairs in total) with the maximum iteration number being $300$ (AER won't change too much after $300$ runs) and diagonal initialization for IBM2.
-Our PMI models take less than one minute to run, IBM1 models finish within five minutes. For IBM2 models, it usually take around 15 minutes to run 100 iterations.
+Our PMI models take less than one minute to run, IBM1 models finish within five minutes. For our IBM2 models, it takes around 15 minutes to run 100 iterations.
 
 In general, the performance of IBM2 is better than that of IBM1, whose performance is better than PMI's performance.
 An interesting observation here is Model 2 has significant improvement over Model 1 in French-English alignment, and the performance is higher (from 0.30 to 0.28) when using \textbf{diagonal} initialization in section \ref{sec:imp} with large $\lambda$. This might be due to the fact that French and English words are comparatively well aligned with respect to their locations in the sentence.
@@ -161,7 +161,7 @@ Example $1$ has successful aligned phrase pairs such as ``shanghai'' (correct), 
 
 What is interesting in Example 1 is that the alignment algorithm successfully aligned the location names, although they do have non-trivial word order changes.
 This observation leads to Example 2 which includes both location names and person's names.
-Person's people are more difficult because it is very unlikely that the same names will appear several times in the corpus and characters in names can also be used 
+Person's names are more difficult to align because it is very unlikely that the same names will appear several times in the corpus and characters in names can also be used 
 in regular phrases.
 In Example 2, both algorithms (IBM1 and IBM2), not surprisingly, failed at aligning both names (``jinhu xie'' and ``chijian zhang'').
 However, the mistake is somewhat tolerable because it approxmiately swapped the correct alignment for those names! This makes us believe that the algorithms succeeded in recognizing that these phrases are person's names. The algorithm failed at producing correct alignment simply because it did not see any enough repetitions of those names in the training data.
@@ -175,7 +175,7 @@ The word alignment model does sometimes align function words (such as \emph{the}
 The most common alignment errors in Chinese-English are failures of aligning Chinese words with English phrases with multiple words. Most Chinese words just contains two characters, while the equivalent English phrases can span several words. More importantly, these equivalent English phrases are not necessarily adjacent to each other, like``as far as \dots be concerned'', which adds to the difficulty of alignment.
 
 \section{MT Features (with Extra Credit)}
-The BLEU scores for our experiments is in Table \ref{tab:bleu}. All these results are averaged across three different runs on two machines. We tried the following features:
+The BLEU scores for our experiments is in Table \ref{tab:bleu}. Since BLEU scores vary between each run, all these results are averaged across three different runs for reliability. We tried the following features:
 \begin{table}
 \begin{center}
 \begin{tabular}{c|c|c|c|c}
@@ -189,10 +189,41 @@ The BLEU scores for our experiments is in Table \ref{tab:bleu}. All these result
 \end{center}
 \end{table}
 \begin{itemize}
-\item \textit{Dimension feature} We add source/target rule dimensions as indicator features.
+\item \textit{Dimension feature} We add source/target rule dimensions as indicator features. 
 \item \textit{Vowel feature} We add the number of vowel alphabets' appearances in source-target pairs as two-dimensional indicator features.
 \item \textit{Derivational rule feature} We add the average target length appeared in the previous derivational rules as numerical features.
 \end{itemize}
+The best and most stable feature among those three is the vowel feature, which gives a BLEU score boost between $0.1$ and $0.3$. This is a language-specific  feature, since we observe that some of the French words look very similar to the English words and the number of syllables tend to be very similar between these two languages.
+We further observe that the number of vowel alphabets (\texttt{'a', 'e', 'i', 'o', 'u'}) is correlated with the number of syllables. Devising a two-dimensional indicator feature for the number of vowel alphabets appearing in target and source rules is reasonable.
+
+\vspace{0.1cm}
+
+We have another feature of source/target dimensions, which just counts the number of words in both sides. This feature gives moderate improvement of BLEU score between $0.1$ and $0.2$.
+
+\vspace{0.1cm}
+Finally, we have a complex derivational feature (extra credit), which looks at the rules that have been applied and calculates the average target size of all those rules. The rationale behind this feature is that our average target language phrase lengths should give a rough estimation of the average phrase length of our target language, which is good complement to the language model.
+
+\subsection{Error Analysis}
+Vowel feature improves the translation by adding missing verbs. An example is as follows.
+\begin{verbatim}
+...according to the office of the czech statistical 
+confirmed to be a progressive decrease of economic growth.
+...according to the office of the czech statistical
+it is confirmed that we head toward a progressive reduction of economic growth.
+\end{verbatim}
+
+Since we cannot speak French, we use Google Translate to help our error analysis (see attached text file \texttt{Google\_Translate\_Comparision.txt}). We sample $30$ sentences from the data, and compare
+our translated results with Google's results.
+
+Errors generally include grammatical errors, meaning distortion and inappropriate word usage.
+
+There are 15 translations that have the same meaning with Google's translation, and they didn't have obvious errors for reading and understanding.
+
+Two of our results have slight grammatical errors but they can still be understood by human readers, such as``is it'' v.s. ``it is''.
+
+For meaning distortion, three of our results dropped one adjective word, which do not affect a rough human understanding. Another three of our results missed some key word, which makes human difficult to guess their meanings. In two extremely bad cases, our translations simply do not make sense.
+
+For improper word usage, there are five cases, but they are not very serious, such as ``participate in the fire'' instead of ``participate in the shooting'', ``accept'' instead of ``agree with''.
 
 
 \bibliographystyle{plain}
