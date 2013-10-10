@@ -1,0 +1,92 @@
+\documentclass[letterpaper]{article}
+
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{algorithmic}
+\usepackage{algorithm}
+
+\setlength\parindent{0pt}
+
+\begin{document}
+
+\title{CS224N Statistical Machine Translation}
+\author{
+	Jiayuan Ma \\
+	\texttt{jiayuanm@stanford.edu}
+	\and
+	Xincheng Zhang\\
+	\texttt{xinchen2@stanford.edu}
+}
+\maketitle
+
+\section{Word Alignment}
+
+\subsection{Basic Algorithms}
+
+\subsubsection{IBM Model 1}
+Since the $q(\cdot)$ parameter in Model 1 has a very simple form
+\begin{equation}
+q(a_i | i, n, m) = \frac{1}{m+1}
+\end{equation}
+we have
+\begin{equation}
+\begin{split}
+& \textrm{argmax}_{a_1, \dots, a_n}
+p(a_1, \dots, a_n | f_1, \dots, f_m, e_1, \dots, e_n, n) \\
+= & \textrm{argmax}_{a_1, \dots, a_n}
+\prod_{i=1}^n q(a_i | i, n, m) t(e_i | f_{a_i}) \\
+= & \frac{1}{(m+1)^n} \prod_{i=1}^n \textrm{argmax}_{a_i}  t(e_i | f_{a_i})
+\end{split}
+\end{equation}
+Therefore, we can have alignment variables $\{ a_i \}_{i=1}^n$ totally independent of $q(\cdot)$ parameters.
+In EM iterations, we should only keep track of $t(\cdot)$ parameters, which are just the normalized counts of different words' cooccurences.
+
+
+\subsubsection{IBM Model 2}
+
+
+
+\subsection{Initialization and Convergence Criterion}
+
+\subsection{Result}
+
+\begin{table}
+\begin{center}
+\begin{tabular}{cccc}
+\hline
+\textbf{Dev Set} & French-English & Hindi-English & Chinese-English \\
+\hline
+PMI & 0.7327 & 0.8546 & 0.8361 \\
+Model1 & 0.3524 &  0.5847 &  0.5836 \\
+Model2 & 0.3129 & 0.5885 & 0.5634 \\
+\hline
+\end{tabular}
+\caption{Different models' Alignment Error Rate (AER) on development sets}\label{tab:dev_result}
+\end{center}
+\end{table}
+
+\begin{table}
+\begin{center}
+\begin{tabular}{cccc}
+\hline
+\textbf{Test Set} & French-English & Hindi-English & Chinese-English \\
+\hline
+PMI & 0.7129 & 0.8102 & 0.8273 \\
+Model1 & 0.3496 &  0.5786 &   0.5857 \\
+Model2 & 0.2858 & 0.5777 & 0.5710 \\
+\hline
+\end{tabular}
+\caption{Different models' Alignment Error Rate (AER) on test sets}\label{tab:test_result}
+\end{center}
+\end{table}
+
+
+
+\subsection{Error Analysis}
+
+\section{MT features}
+
+\end{document}

@@ -11,8 +11,8 @@ public class IBMModel2SpedUp implements WordAligner {
 	private static final double DELTA = 0.01;
 	private static final double EPS = 1e-10;
 	//private static final double LEAK = 0.08; // french
-	//private static final double LAMBDA = 0.01; // french
-	private static final double LAMBDA = 0.01; // hindi
+	//private static final double LAMBDA = 10; // french
+	private static final double LAMBDA = 0.005; // hindi
 	private static final double LEAK = 0.08; // hindi
 	
 
@@ -149,6 +149,7 @@ public class IBMModel2SpedUp implements WordAligner {
 					for (int j = 0; j < m; j++) {
 						delta = conditionalCounter.getCount(f.get(j), e.get(i))
 								* (positionCounter.getCount(p, Integer.valueOf(j)) / sum);
+						
 						delta = Double.isNaN(delta) ? 0.0 : delta;
 						currentConditionalCounter.incrementCount(f.get(j), e.get(i), delta);
 						currentPositionCounter.incrementCount(p, Integer.valueOf(j), delta);
@@ -157,8 +158,8 @@ public class IBMModel2SpedUp implements WordAligner {
 					// NULL word
 					delta = conditionalCounter.getCount(NULL_WORD, e.get(i))
 							* (positionCounter.getCount(p, Integer.valueOf(-1)) / sum);
-					delta = Double.isNaN(delta) ? 0.0 : delta;
 					
+					delta = Double.isNaN(delta) ? 0.0 : delta;
 					currentConditionalCounter.incrementCount(NULL_WORD, e.get(i), delta);
 					currentPositionCounter.incrementCount(p, Integer.valueOf(-1), delta);
 				}
